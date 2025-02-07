@@ -6,6 +6,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+// new line of code for test
+
 #define DNS_SERVER "8.8.8.8" // Google's Public DNS
 #define DNS_PORT 53
 #define MAX_PACKET_SIZE 512
