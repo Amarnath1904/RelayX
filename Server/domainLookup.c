@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#define DNS_SERVER "1.1.1.1" // Google's Public DNS
+#define DNS_SERVER "8.8.8.8" // Google's Public DNS
 #define DNS_PORT 53
 #define MAX_PACKET_SIZE 512
 #define MAX_IPS 10 // Maximum number of IPs to store
