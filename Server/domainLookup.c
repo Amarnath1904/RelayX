@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-// new line of code for test 4
+// new line of code for test 5
 
 #define DNS_SERVER "8.8.8.8" // Google's Public DNS
 #define DNS_PORT 53
