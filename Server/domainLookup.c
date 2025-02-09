@@ -6,10 +6,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#define DNS_SERVER "8.8.8.8" // Google's Public DNS
-#define DNS_PORT 53
-#define MAX_PACKET_SIZE 512
-#define MAX_IPS 10 // Maximum number of IPs to store
+#include "domainLookup.h"
 
 // Structure for DNS header
 struct DNS_HEADER {
@@ -127,22 +124,4 @@ int dns_lookup(const char *domain, int query_type, char resolved_ips[MAX_IPS][IN
     }
     close(sock);
     return ip_count;
-}
-
-int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printf("Usage: %s <domain_name>\n", argv[0]);
-        return 1;
-    }
-    char resolved_ips[MAX_IPS][INET_ADDRSTRLEN];
-    int ip_count = dns_lookup(argv[1], 1, resolved_ips); // Lookup A record
-    if (ip_count > 0) {
-        printf("Resolved IPs for %s:\n", argv[1]);
-        for (int i = 0; i < ip_count; i++) {
-            printf("%s\n", resolved_ips[i]);
-        }
-    } else {
-        printf("No IP found for %s\n", argv[1]);
-    }
-    return 0;
 }
