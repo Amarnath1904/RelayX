@@ -108,6 +108,8 @@ int dns_lookup(const char *domain, int query_type, char resolved_ips[MAX_IPS][IN
     struct sockaddr_in a;
     unsigned char *reader = buffer + sizeof(struct DNS_HEADER) + strlen((const char*)buffer + sizeof(struct DNS_HEADER)) + 1 + sizeof(struct QUESTION);
 
+    printf("🔍 Performing DNS lookup for: %s (Query Type: %d)\n", domain, query_type);
+
     for (int i = 0; i < ntohs(((struct DNS_HEADER*)buffer)->ans_count) && ip_count < MAX_IPS; i++) {
         reader += 2;
         unsigned short type = ntohs(*(unsigned short*)reader);
@@ -115,11 +117,38 @@ int dns_lookup(const char *domain, int query_type, char resolved_ips[MAX_IPS][IN
         unsigned short data_len = ntohs(*(unsigned short*)reader);
         reader += 2;
 
-        if (type == 1) { // IPv4 address
+        if (type == 1) { // A Record (IPv4 Address)
             a.sin_addr.s_addr = *(long*)reader;
             strcpy(resolved_ips[ip_count], inet_ntoa(a.sin_addr));
+            printf("✅ Found A Record: %s\n", resolved_ips[ip_count]);
             ip_count++;
             reader += data_len;
+        }
+        else if (type == 15) { // MX Record
+            unsigned short preference = ntohs(*(unsigned short*)reader);
+            reader += 2; // Move past preference value
+
+            char mail_server[256];
+            memset(mail_server, 0, sizeof(mail_server));
+
+            int j = 0;
+            while (*reader) {
+                if (*reader >= 192) { // Name compression
+                    reader = buffer + ((*reader & 0x3F) << 8) + *(reader + 1);
+                } else {
+                    int len = *reader++;
+                    for (int k = 0; k < len; k++) {
+                        mail_server[j++] = *reader++;
+                    }
+                    mail_server[j++] = '.';
+                }
+            }
+            mail_server[j - 1] = '\0'; // Remove last dot
+
+            printf("📬 Found MX Record (Pref %d): %s\n", preference, mail_server);
+            strcpy(resolved_ips[ip_count], mail_server);
+            ip_count++;
+            reader += data_len - 2; // Move past remaining bytes
         }
     }
     close(sock);
